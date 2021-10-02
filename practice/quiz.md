@@ -40,7 +40,7 @@ after
    > 500 之後出現
 
 3. 為什麼?
-   > 因為<b>readData(0)</b>會在 call stack 裡去跑 for loop (1~100)。當 100 跑完後發現到 for loop 裡的 if(< 500)時，程式會繼續在 call stack 裡跑 (101~500)。接著<b>readData(0)</b>都跑完結束後，再來會跑 console.log(after); 程式碼裡都是 javascript 原生的函式，所以都會在 callstack 裡執行。
+   > 因為<b>readData(0)</b>會在 call stack 裡去跑 for loop (1\~100)。當 100 跑完後發現到 for loop 裡的 if(< 500)時，程式會繼續在 call stack 裡跑 (101\~500)。接著<b>readData(0)</b>都跑完結束後，再來會跑 console.log(after); 程式碼裡都是 javascript 原生的函式，所以都會在 callstack 裡執行。
 
 - [手繪連結](https://www.figma.com/proto/MuaTVDoDde8oSo3idi077o/event-loop?node-id=1%3A2&scaling=min-zoom&page-id=0%3A1&starting-point-node-id=1%3A2)
   <small>(請一直往下點即可)</small>
