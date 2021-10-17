@@ -1,0 +1,25 @@
+const axios = require("axios");
+
+let stockCode = "2330";
+let today = "20211017";
+let format = "json";
+
+async function getStock() {
+  try {
+    let response = await axios.get(
+      "https://www.twse.com.tw/exchangeReport/STOCK_DAY",
+      {
+        params: {
+          response: format,
+          data: today,
+          stockNo: stockCode,
+        },
+      }
+    );
+    console.log(response);
+  } catch {
+    console.error(err);
+  }
+}
+
+getStock();
