@@ -6,7 +6,7 @@ let format = "json";
 
 async function getStock() {
   try {
-    let response = await axios.get(
+    let res = await axios.get(
       "https://www.twse.com.tw/exchangeReport/STOCK_DAY",
       {
         params: {
@@ -16,7 +16,7 @@ async function getStock() {
         },
       }
     );
-    console.log(response);
+    console.log(res.data);
   } catch {
     console.error(err);
   }
