@@ -11,7 +11,7 @@ async function getStock() {
       {
         params: {
           response: format,
-          data: today,
+          date: today,
           stockNo: stockCode,
         },
       }
