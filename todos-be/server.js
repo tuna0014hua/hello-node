@@ -20,6 +20,14 @@ connection = Promise.promisifyAll(connection); //把connection函式帶入
 
 let app = express(); //application(請求、申請)
 
+// CORS 跨來源資源共用
+// 抓資料給前端使用
+const cors = require("cors");
+// let corsOption = {
+//   origin: "*", // * => 全部
+// };
+app.use(cors());
+
 // app.use 告訴 express 這裡有一個中間件(middleware)
 // middleware 只是一個函式 ，會有三個參數
 app.use((req, res, next) => {
@@ -99,10 +107,36 @@ app.get("/api/test", (req, res) => {
   });
 });
 
-// 抓資料庫API
+// 抓資料庫API => 拿全部資料
+// query 是 mysql 內建函式 => callback型式
 app.get("/api/todos", async (req, res) => {
   let data = await connection.queryAsync("SELECT * FROM todos");
   res.json(data);
+});
+
+//  /api/todos/24 => 24是網頁上的變數
+// 根據 id 取得單筆資料
+// 一開始測試資料會先寫死資料，後續有抓到資料，要記得改回變數
+// : 後面是抓變數名稱(todoId)
+app.get("/api/todos/:todoId", async (req, res) => {
+  // req.params.todoId => params是一個物件
+  let data = await connection.queryAsync("SELECT * FROM todos WHERE id = ?;", [
+    req.params.todoId,
+  ]);
+  // 規劃好前端路由、後端路由、API格式
+  // 直接把陣列回給前端
+  // res.json(data);
+
+  if (data.length > 0) {
+    // 只回覆一個物件
+    res.json(data[0]);
+  } else {
+    // ?空的
+    // ex: /api/todos/24
+    // res.send(null);
+    res.status(404).send("Not Found");
+    // 兩者都可以，但是團隊要一致性
+  }
 });
 
 // 這個中間件是負責做紀錄的
