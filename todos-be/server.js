@@ -1,22 +1,6 @@
 const express = require("express");
 const path = require("path");
 require("dotenv").config();
-const mysql = require("mysql");
-
-// 安裝 bluebird 慣例都會用 Promise去當變數
-const Promise = require("bluebird");
-
-let connection = mysql.createConnection({
-  host: process.env.DB_HOST, // 本機 127.0.0.1
-  port: process.env.DB_PORT, // 埠號 mysql 預設就是 3306
-  user: process.env.DB_USER,
-  password: process.env.DB_PWD,
-  database: process.env.DB_NAME,
-});
-
-// 利用 bluebird 把 connection 的函式都變成 Promise
-// promisifyAll ==>把這個東西 promise化
-connection = Promise.promisifyAll(connection); //把connection函式帶入
 
 let app = express(); //application(請求、申請)
 
@@ -27,6 +11,13 @@ const cors = require("cors");
 //   origin: "*", // * => 全部
 // };
 app.use(cors());
+
+// 順序很重要 body -> 底下中間件
+
+// 使用這中間件，才可以讀到 body 的資料
+app.use(express.urlencoded({ extended: true }));
+// 使用這中間件，才可以解析得到 json 資料
+app.use(express.json());
 
 // app.use 告訴 express 這裡有一個中間件(middleware)
 // middleware 只是一個函式 ，會有三個參數
@@ -107,37 +98,20 @@ app.get("/api/test", (req, res) => {
   });
 });
 
-// 抓資料庫API => 拿全部資料
-// query 是 mysql 內建函式 => callback型式
-app.get("/api/todos", async (req, res) => {
-  let data = await connection.queryAsync("SELECT * FROM todos");
-  res.json(data);
-});
+// 重構
+// 原本這裡有 /api/todos 的相關路由
+// 引用 router
+let todosRouter = require("./routers/todos");
+app.use("/api/todos", todosRouter);
 
-//  /api/todos/24 => 24是網頁上的變數
-// 根據 id 取得單筆資料
-// 一開始測試資料會先寫死資料，後續有抓到資料，要記得改回變數
-// : 後面是抓變數名稱(todoId)
-app.get("/api/todos/:todoId", async (req, res) => {
-  // req.params.todoId => params是一個物件
-  let data = await connection.queryAsync("SELECT * FROM todos WHERE id = ?;", [
-    req.params.todoId,
-  ]);
-  // 規劃好前端路由、後端路由、API格式
-  // 直接把陣列回給前端
-  // res.json(data);
+// prefix
+// 身分驗證有關的路由
+let authRouter = require("./routers/auth");
+app.use("/api/auth", authRouter);
 
-  if (data.length > 0) {
-    // 只回覆一個物件
-    res.json(data[0]);
-  } else {
-    // ?空的
-    // ex: /api/todos/24
-    // res.send(null);
-    res.status(404).send("Not Found");
-    // 兩者都可以，但是團隊要一致性
-  }
-});
+// 會員中心的路由
+let memberRouter = require("./routers/member");
+app.use("/aop/member", memberRouter);
 
 // 這個中間件是負責做紀錄的
 app.use((req, res, next) => {
@@ -155,7 +129,8 @@ app.use((req, res, next) => {
 });
 
 // 3001 port
+// 讓你的 application 啟動起來
 app.listen(3001, () => {
-  connection.connect();
+  // connection.connect(); // 第一次查詢時會自動連接
   console.log("express app 啟動了囉");
 });
