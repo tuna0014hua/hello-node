@@ -6,6 +6,7 @@ import DeleteBtn from "./buttons/DeleteBtn";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { STATUS_WORD, STATUS_COLOR } from "../../configs/status";
+import { API_URL } from "../../configs/config";
 
 const TodoList = () => {
   const [todos, setTodos] = useState([]);
@@ -13,7 +14,7 @@ const TodoList = () => {
   // useEffect <= 要載入頁面時就去執行某些行為
   useEffect(async () => {
     // 非同步工作
-    let res = await axios.get("http://localhost:3001/api/todos");
+    let res = await axios.get(`${API_URL}/todos`);
     setTodos(res.data);
   }, []);
 
@@ -53,7 +54,8 @@ const TodoList = () => {
             <div>到期日期: {item.deadline}</div>
           </div>
           <footer className="card-footer">
-            <ShowBtn />
+            {/* 點擊檢視BTN會連動到 showBtn元件所綁定的項目Id連結去 */}
+            <ShowBtn itemId={item.id} />
             <a href="#/" className="card-footer-item">
               <FontAwesomeIcon icon={faCheck} className="mr-2" />
               Done
